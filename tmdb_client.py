@@ -37,6 +37,17 @@ def get_single_movie(movie_id):
     return response.json()
 
 
+def get_movies_list(list_type):
+    endpoint = f"https://api.themoviedb.org/3/movie/{list_type}"
+    api_token = get_token()
+    headers = {
+        "Authorization": f"Bearer {api_token}"
+    }
+    response = requests.get(endpoint, headers=headers)
+    response.raise_for_status()
+    return response.json()
+
+
 def get_popular_movies():
     endpoint = "https://api.themoviedb.org/3/movie/popular"
     api_token = get_token()

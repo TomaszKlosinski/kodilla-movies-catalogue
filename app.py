@@ -1,13 +1,16 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import random
 
-from tmdb_client import get_poster_url, get_popular_movies, get_single_movie, get_single_movie_cast, get_movie_images
+from tmdb_client import get_poster_url, get_movies_list, get_single_movie, get_single_movie_cast, get_movie_images
 
 app = Flask(__name__)
 
 
-def get_movies(how_many):
-    data = get_popular_movies()
+LIST_TYPES = ['top_rated', 'upcoming', 'popular', 'now_playing']
+
+
+def get_movies(how_many, list_type):
+    data = get_movies_list(list_type)
     results = data["results"][:how_many]
     random.shuffle(results)
     return results
@@ -22,8 +25,11 @@ def utility_processor():
 
 @app.route('/')
 def homepage():
-    movies = get_movies(how_many=8)
-    return render_template("homepage.html", movies=movies)
+    selected_list = request.args.get('list_type', "popular")
+    if selected_list not in LIST_TYPES:
+        selected_list = "popular"
+    movies = get_movies(how_many=8, list_type=selected_list)
+    return render_template("homepage.html", movies=movies, current_list=selected_list, list_types=LIST_TYPES)
 
 
 @app.route("/movie/<movie_id>")
